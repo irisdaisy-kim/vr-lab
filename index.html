@@ -1,14 +1,127 @@
+
+<!DOCTYPE html>
 <html>
   <head>
     <script src="https://aframe.io/releases/1.8.0/aframe.min.js"></script>
   </head>
   <body>
-    <a-scene>
-      <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
-      <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
-      <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
-      <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
+    <a-scene background="color: #ECECEC">
+
+      <!-- Supermarket floor -->
+      <a-plane
+        position="0 0 -10"
+        rotation="-90 0 0"
+        width="12"
+        height="30"
+        color="#D9D9D9">
+      </a-plane>
+
+      <!-- Ceiling -->
+      <a-box
+        position="0 4 -10"
+        width="12"
+        height="0.2"
+        depth="30"
+        color="#F5F5F5">
+      </a-box>
+
+      <!-- Left side: tall shelves extending back -->
+      <a-entity id="left-shelves"></a-entity>
+
+      <!-- Right side: tall shelves extending back -->
+      <a-entity id="right-shelves"></a-entity>
+
+      <!-- Camera at average standing eye height -->
+      <a-entity
+        camera
+        look-controls
+        wasd-controls
+        position="0 1.6 2">
+      </a-entity>
+
+      <!-- Lighting -->
+      <a-light
+        type="ambient"
+        color="#FFFFFF"
+        intensity="0.8">
+      </a-light>
+
+      <a-light
+        type="directional"
+        position="0 5 -5"
+        intensity="0.7">
+      </a-light>
+
       <a-sky color="#ECECEC"></a-sky>
+
     </a-scene>
+
+    <script>
+      const colors = [
+        "#EF2D5E",
+        "#FFC65D",
+        "#4CC3D9",
+        "#7BC8A4",
+        "#A569BD",
+        "#F39C12"
+      ];
+
+      function makeShelf(side, z) {
+        const shelf = document.createElement("a-entity");
+        const x = side === "left" ? -2.5 : 2.5;
+
+        // Main shelf structure
+        const frame = document.createElement("a-box");
+        frame.setAttribute("position", `${x} 1.8 ${z}`);
+        frame.setAttribute("width", "1.2");
+        frame.setAttribute("height", "3.6");
+        frame.setAttribute("depth", "3.8");
+        frame.setAttribute("color", "#B0B0B0");
+        shelf.appendChild(frame);
+
+        // Shelf levels and colorful products
+        for (let level = 0; level < 5; level++) {
+          const y = 0.4 + level * 0.7;
+
+          const board = document.createElement("a-box");
+          board.setAttribute("position", `${x} ${y} ${z}`);
+          board.setAttribute("width", "1.4");
+          board.setAttribute("height", "0.08");
+          board.setAttribute("depth", "3.8");
+          board.setAttribute("color", "#666666");
+          shelf.appendChild(board);
+
+          // Products facing the aisle
+          for (let i = 0; i < 10; i++) {
+            const product = document.createElement("a-box");
+            const productX = side === "left" ? x + 0.48 : x - 0.48;
+            const productZ = z - 1.65 + i * 0.36;
+
+            product.setAttribute(
+              "position",
+              `${productX} ${y + 0.28} ${productZ}`
+            );
+            product.setAttribute("width", "0.26");
+            product.setAttribute("height", "0.5");
+            product.setAttribute("depth", "0.27");
+            product.setAttribute(
+              "color",
+              colors[(i + level) % colors.length]
+            );
+            shelf.appendChild(product);
+          }
+        }
+
+        document.querySelector(
+          side === "left" ? "#left-shelves" : "#right-shelves"
+        ).appendChild(shelf);
+      }
+
+      // Repeat shelving units far down the aisle
+      for (let z = -2; z >= -22; z -= 4) {
+        makeShelf("left", z);
+        makeShelf("right", z);
+      }
+    </script>
   </body>
 </html>
